@@ -36,9 +36,12 @@ module Rails2AssetPipeline
   end
 
   def self.setup(&block)
-    @env ||= Sprockets::Environment.new
-    Dir[Rails.root.join("app", "assets", "*")].each do |folder|
-      @env.append_path folder
+    # Only create and initialize the environment's paths once
+    unless @env
+      @env = Sprockets::Environment.new
+      Dir[Rails.root.join("app", "assets", "*")].each do |folder|
+        @env.append_path folder
+      end
     end
     # TODO vendor + lib
     if block_given?
