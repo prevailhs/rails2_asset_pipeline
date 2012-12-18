@@ -18,23 +18,21 @@ namespace :assets do
   task :config do
     initializer = Rails.root.join("config/initializers/rails2_asset_pipeline.rb")
     load initializer if File.exist?(initializer)
+    load_tasks.call
   end
 
   desc "Compile all the assets"
   task :precompile => "assets:config" do
-    load_tasks.call
     Rake::Task["r2ap:assets"].invoke
   end
 
   desc "Remove compiled assets"
   task :clean => "assets:config" do
-    load_tasks.call
     Rake::Task["r2ap:clobber"].invoke
   end
 
   desc "Remove old assets"
   task :remove_old => "assets:config" do
-    load_tasks.call
     Rake::Task["r2ap:clean"].invoke
   end
 
