@@ -7,10 +7,10 @@ namespace :assets do
     namespace :r2ap do
       Rake::SprocketsTask.new do |t|
         t.environment = Rails2AssetPipeline.env
-        t.output = "./public/assets"
-        t.assets = t.environment.paths.map{|p| Dir["#{p.sub(Rails.root.to_s,"")}/**/*"] }.flatten
-        t.log_level = Logger::ERROR
-        t.keep = 2
+        t.output = Rails2AssetPipeline.output
+        t.assets = Rails2AssetPipeline.assets
+        t.log_level = Rails2AssetPipeline.log_level
+        t.keep = Rails2AssetPipeline.keep
       end
     end
   end

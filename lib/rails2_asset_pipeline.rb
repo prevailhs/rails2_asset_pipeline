@@ -6,19 +6,43 @@ module Rails2AssetPipeline
 
   class << self
     attr_accessor :dynamic_assets_available, :manifest
+    # Expose settings for the sprockets task
+    attr_accessor :output, :assets, :log_level, :keep
+  end
+
+  # Provide defaults for sprockets task that matches legacy
+  def self.output
+    @output ||= "./public/assets"
+  end
+
+  def self.assets
+    @assets ||= env.paths.map{|p| Dir["#{p.sub(Rails.root.to_s,"")}/**/*"] }.flatten
+  end
+
+  def self.log_level
+    @log_level ||= Logger::ERROR
+  end
+
+  def self.keep
+    @keep ||= 2
   end
 
   def self.env
     @env || setup
   end
 
-  def self.setup
+  def self.setup(&block)
     @env ||= Sprockets::Environment.new
     Dir[Rails.root.join("app", "assets", "*")].each do |folder|
       @env.append_path folder
     end
     # TODO vendor + lib
-    yield @env if block_given?
+    if block_given?
+      args = [@env]
+      # Yield self for configuration if the callee supports that
+      args << self if block.arity > 1
+      yield *args
+    end
     @env
   end
 
