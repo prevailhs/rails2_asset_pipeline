@@ -5,9 +5,13 @@ module Rails2AssetPipeline
   STATIC_ENVIRONMENTS = ["production", "staging"]
 
   class << self
-    attr_accessor :dynamic_assets_available, :manifest
+    attr_accessor :static_environments, :dynamic_assets_available, :manifest
     # Expose settings for the sprockets task
     attr_accessor :output, :assets, :log_level, :keep
+  end
+
+  def self.static_environments
+    @static_environments ||= STATIC_ENVIRONMENTS
   end
 
   # Provide defaults for sprockets task that matches legacy
@@ -48,7 +52,7 @@ module Rails2AssetPipeline
 
   def self.config_ru
     lambda do
-      unless STATIC_ENVIRONMENTS.include?(Rails.env)
+      unless Rails2AssetPipeline.static_environments.include?(Rails.env)
         Rails2AssetPipeline.dynamic_assets_available = true
         map '/assets' do
           run Rails2AssetPipeline.env
@@ -58,7 +62,7 @@ module Rails2AssetPipeline
   end
 
   def self.static?
-    not Rails2AssetPipeline.dynamic_assets_available or Rails2AssetPipeline::STATIC_ENVIRONMENTS.include?(Rails.env)
+    not Rails2AssetPipeline.dynamic_assets_available or Rails2AssetPipeline::static_environments.include?(Rails.env)
   end
 
   def self.with_dynamic_assets_available(value)
