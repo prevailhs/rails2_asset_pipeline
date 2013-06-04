@@ -91,4 +91,18 @@ module Rails2AssetPipeline
       raise "No dynamic assets available and no #{manifest} found, run `rake assets:precompile` for static assets or read https://github.com/grosser/rails2_asset_pipeline#dynamic-assets-for-development for instructions on dynamic assets"
     end
   end
+  
+  def self.find_asset(asset)
+    warn_user_about_misconfiguration!
+
+    asset_with_id = if static?
+      @sprockets_manifest ||= Sprockets::Manifest.new(env, manifest)
+      @sprockets_manifest.assets[asset]
+    else
+      data = env[asset]
+      data ? "#{asset}?#{data.mtime.to_i}" : nil
+    end
+
+    asset_with_id ? "/assets/#{asset_with_id}" : nil
+  end
 end
